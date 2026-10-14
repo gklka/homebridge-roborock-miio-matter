@@ -1,0 +1,109 @@
+{
+  "pluginAlias": "RoborockMiio",
+  "pluginType": "platform",
+  "singular": false,
+  "headerDisplay": "Exposes a Roborock vacuum that is paired with the Xiaomi Home app (S5, S50/S55, S6, Mi Robot Vacuum…) to Apple Home as a native Matter robot vacuum. Needs Homebridge 2 and **Matter enabled on this plugin's child bridge**. The robot is controlled locally over miIO, so you need its IP address and token.",
+  "footerDisplay": "Find the robot with `roborock-miio-probe --discover`, then check the token and list the room segments with `roborock-miio-probe --host <ip> --token <token>`.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "Roborock",
+        "required": true,
+        "description": "Name of the vacuum in Apple Home and in the Homebridge log."
+      },
+      "host": {
+        "title": "IP address",
+        "type": "string",
+        "required": true,
+        "format": "ipv4",
+        "description": "The robot's IP address. Give it a fixed DHCP lease on your router so it does not change."
+      },
+      "token": {
+        "title": "miIO token",
+        "type": "string",
+        "required": true,
+        "pattern": "^[0-9a-fA-F]{32}$",
+        "description": "32 hexadecimal characters. Get it from your Xiaomi account with Xiaomi-cloud-tokens-extractor. It changes whenever the robot is reset or re-paired in Xiaomi Home.",
+        "x-schema-form": {
+          "type": "password"
+        }
+      },
+      "rooms": {
+        "title": "Room names",
+        "type": "array",
+        "description": "The robot only knows its rooms by number (segment); the names you see in Xiaomi Home are stored in the Xiaomi cloud. Name each segment here.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "segment": {
+              "title": "Segment",
+              "type": "integer",
+              "minimum": 1,
+              "required": true
+            },
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "maxLength": 64,
+              "required": true
+            }
+          }
+        }
+      },
+      "unnamedRooms": {
+        "title": "Show rooms without a name",
+        "type": "boolean",
+        "default": true,
+        "description": "Offer segments missing from the list above as \"Room <segment>\". Turn off to offer only the named ones."
+      },
+      "pollInterval": {
+        "title": "Poll interval (seconds)",
+        "type": "integer",
+        "default": 10,
+        "minimum": 5,
+        "description": "How often to read the robot's status."
+      },
+      "extendedStates": {
+        "title": "Report docking, charging and error details",
+        "type": "boolean",
+        "default": false,
+        "description": "Also advertise the robot-vacuum specific states (returning to dock, charging, docked) and error reasons. Off by default because Apple Home has been seen refusing to pair vacuums that advertise more than the four basic states. If you change this, remove the vacuum from Apple Home and pair it again."
+      }
+    }
+  },
+  "layout": [
+    "name",
+    "host",
+    "token",
+    {
+      "type": "fieldset",
+      "title": "Rooms",
+      "expandable": true,
+      "items": [
+        {
+          "key": "rooms",
+          "type": "array",
+          "orderable": false,
+          "buttonText": "Add room",
+          "items": [
+            "rooms[].segment",
+            "rooms[].name"
+          ]
+        },
+        "unnamedRooms"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Advanced",
+      "expandable": true,
+      "items": [
+        "pollInterval",
+        "extendedStates"
+      ]
+    }
+  ]
+}

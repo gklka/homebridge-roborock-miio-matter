@@ -1,0 +1,45 @@
+{
+  "name": "homebridge-roborock-miio-matter",
+  "displayName": "Roborock (Xiaomi Home) Matter Vacuum",
+  "version": "1.0.0",
+  "description": "Exposes a Roborock vacuum paired with the Xiaomi Home app (S5 and friends) to Apple Home as a native Matter robot vacuum, over the local miIO protocol.",
+  "author": "Gruber Kristóf",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gklka/homebridge-roborock-miio-matter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gklka/homebridge-roborock-miio-matter/issues"
+  },
+  "homepage": "https://github.com/gklka/homebridge-roborock-miio-matter#readme",
+  "main": "index.js",
+  "bin": {
+    "roborock-miio-probe": "bin/roborock-miio-probe.js"
+  },
+  "engines": {
+    "node": "^20 || ^22 || ^24",
+    "homebridge": "^2.0.0"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "matter",
+    "roborock",
+    "xiaomi",
+    "mi-home",
+    "miio",
+    "vacuum",
+    "robot-vacuum",
+    "s5"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "bin/",
+    "config.schema.json",
+    "README.md"
+  ]
+}

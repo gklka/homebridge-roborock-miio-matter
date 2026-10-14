@@ -156,8 +156,8 @@ simply does not appear in Apple Home.
 rooms but only reports the rooms that have been given a name in Xiaomi Home, and
 some app versions offer no way to name them. The robot then lists no rooms at
 all, although cleaning by segment works fine. In that case the plugin takes the
-segments in `rooms` on trust. Segments are numbered from 16 upwards; find out
-which is which with `--clean-room`.
+segments in `rooms` on trust. Segments are usually numbered from 16 upwards,
+but low numbers (1, 2, …) occur too; find out which is which with `--clean-room`.
 
 ## How it maps
 

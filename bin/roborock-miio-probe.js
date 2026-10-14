@@ -103,7 +103,13 @@ async function runDevice(args) {
     console.log(`Battery:    ${status.battery}%`);
     console.log(`Suction:    ${status.fan_power} → "${mode ? mode.label : '?'}" (${scheme === 'codes' ? '101-105 codes' : 'percentage'} firmware)`);
     if (status.error_code) console.log(`Error:      ${errorName(status.error_code)} (${status.error_code})`);
-    if (rooms.length === 0) {
+    const segmented = rooms.length === 0
+      && await vacuum.call('get_segment_status').then((result) => Array.isArray(result) && result[0] === 1, () => false);
+    if (segmented) {
+      console.log('Rooms:      the map is divided into rooms, but this firmware only lists rooms that have a name');
+      console.log('            (and older Xiaomi Home versions cannot name them). Segments are numbered from 16;');
+      console.log('            use --clean-room <segment> to see which is which, and list them in the plugin config.');
+    } else if (rooms.length === 0) {
       console.log('Rooms:      none on the saved map (room cleaning needs a saved map, set up in Xiaomi Home)');
     } else {
       console.log(`Rooms:      ${rooms.length} on the saved map — segments ${rooms.map((room) => room.segment).join(', ')}`);

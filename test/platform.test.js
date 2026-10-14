@@ -193,6 +193,25 @@ test('unnamed rooms can be hidden', async (t) => {
   assert.deepEqual(api.registered[0].clusters.serviceArea.supportedAreas.map((area) => area.areaId), [17]);
 });
 
+test('configured rooms are trusted when the robot lists none', async (t) => {
+  const { api, vacuum, platform } = await startPlatform({
+    rooms: [],
+    config: { rooms: [{ segment: 16, name: 'Kitchen' }, { segment: 18, name: 'Bedroom' }] },
+  });
+  t.after(() => platform.shutdown());
+  const accessory = api.registered[0];
+  assert.deepEqual(accessory.clusters.serviceArea.supportedAreas.map((area) => area.areaId), [16, 18]);
+  await accessory.handlers.serviceArea.selectAreas({ newAreas: [18] });
+  await accessory.handlers.rvcRunMode.changeToMode({ newMode: ms.RUN_MODE.CLEANING });
+  assert.deepEqual(vacuum.commands.pop(), ['cleanRooms', [18]]);
+});
+
+test('no rooms anywhere means no room picker', async (t) => {
+  const { api, platform } = await startPlatform({ rooms: [] });
+  t.after(() => platform.shutdown());
+  assert.ok(!api.registered[0].clusters.serviceArea);
+});
+
 test('an unknown room selection is not stored', async (t) => {
   const { api, vacuum, platform } = await startPlatform({ rooms: [16] });
   t.after(() => platform.shutdown());

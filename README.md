@@ -152,6 +152,13 @@ Room cleaning needs firmware with room support (recent S5 firmware has it) and a
 map divided into rooms, set up in Xiaomi Home. Without one, the Rooms option
 simply does not appear in Apple Home.
 
+**Rooms without names.** Older firmware (S5 3.5.8, for one) divides the map into
+rooms but only reports the rooms that have been given a name in Xiaomi Home, and
+some app versions offer no way to name them. The robot then lists no rooms at
+all, although cleaning by segment works fine. In that case the plugin takes the
+segments in `rooms` on trust. Segments are numbered from 16 upwards; find out
+which is which with `--clean-room`.
+
 ## How it maps
 
 | Robot | Matter operational state | Run mode |

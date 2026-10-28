@@ -40,6 +40,7 @@ class FakeVacuum {
     this.status = status;
     this.rooms = rooms;
     this.deviceId = 424242;
+    this.host = '192.168.0.50';
     this.commands = [];
   }
 

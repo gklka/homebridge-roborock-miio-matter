@@ -147,3 +147,58 @@ test('a robot without room support reports no rooms', async (t) => {
 
   assert.deepEqual(await vacuum.getRooms(), []);
 });
+
+test('finds the device again after it moves to another address', async (t) => {
+  const device = new FakeDevice({ token: TOKEN, handler: () => ['ok'] });
+  const port = await device.start();
+  // Another miIO device on the network, with a token of its own.
+  const stranger = new FakeDevice({
+    token: OTHER_TOKEN, deviceId: 999, address: '127.0.0.3', handler: () => ['ok'],
+  });
+  await stranger.start(port);
+  const moves = [];
+  const client = new MiioClient({
+    host: '127.0.0.2',
+    port,
+    token: TOKEN,
+    timeout: 100,
+    retries: 0,
+    discover: async () => [
+      { address: '127.0.0.3', deviceId: 999 },
+      { address: '127.0.0.1', deviceId: 12345678 },
+    ],
+    onRelocate: (host, previous) => moves.push([host, previous]),
+  });
+  t.after(() => { client.close(); device.stop(); stranger.stop(); });
+
+  assert.deepEqual(await client.call('get_status'), ['ok']);
+  assert.equal(client.host, '127.0.0.1');
+  assert.deepEqual(moves, [['127.0.0.1', '127.0.0.2']]);
+});
+
+test('a known device id rules out other devices, and searches are rate limited', async (t) => {
+  const device = new FakeDevice({ token: TOKEN, handler: () => ['ok'] });
+  const port = await device.start();
+  let searches = 0;
+  const client = new MiioClient({
+    host: '127.0.0.1',
+    port,
+    token: TOKEN,
+    timeout: 100,
+    retries: 0,
+    discover: async () => {
+      searches += 1;
+      // The same token answers here, but the device id says it is not ours.
+      return [{ address: '127.0.0.1', deviceId: 1 }];
+    },
+  });
+  t.after(() => { client.close(); device.stop(); });
+
+  await client.call('get_status');
+  client.host = '127.0.0.2';
+  client.deviceId = null;
+  await assert.rejects(client.call('get_status'), MiioTimeoutError);
+  assert.equal(client.host, '127.0.0.2', 'only the known device id is tried, and it is not elsewhere');
+  await assert.rejects(client.call('get_status'), MiioTimeoutError);
+  assert.equal(searches, 1);
+});

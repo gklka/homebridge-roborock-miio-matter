@@ -11,21 +11,24 @@ const { encodePacket, decodePacket } = require('../lib/miio');
 const HEADER_LENGTH = 32;
 
 class FakeDevice {
-  constructor({ token, deviceId = 12345678, handler, dropFirst = 0 }) {
+  constructor({
+    token, deviceId = 12345678, handler, dropFirst = 0, address = '127.0.0.1',
+  }) {
     this.token = Buffer.from(token, 'hex');
     this.deviceId = deviceId;
     this.handler = handler;
     this.dropFirst = dropFirst;
+    this.address = address;
     this.stamp = 1000;
     this.calls = [];
     this.hellos = 0;
     this.socket = dgram.createSocket('udp4');
   }
 
-  start() {
+  start(port = 0) {
     this.socket.on('message', (msg, rinfo) => this.onMessage(msg, rinfo));
     return new Promise((resolve) => {
-      this.socket.bind(0, '127.0.0.1', () => resolve(this.socket.address().port));
+      this.socket.bind(port, this.address, () => resolve(this.socket.address().port));
     });
   }
 

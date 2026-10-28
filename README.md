@@ -129,7 +129,7 @@ plugin updates.
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `name` | `Roborock` | Name in Apple Home and in the log. |
-| `host`, `token` | – | The robot's IP address and miIO token. Required. Give the robot a fixed DHCP lease. |
+| `host`, `token` | – | The robot's IP address and miIO token. Required. If the robot stops answering at `host`, the plugin searches the network for the device that answers to the token and switches to it (logging the new address), so a changed DHCP lease heals itself; a fixed lease still saves the search after a restart. |
 | `rooms` | `[]` | Names for the room segments, as `{ "segment": 16, "name": "Kitchen" }`. See below. |
 | `unnamedRooms` | `true` | Offer segments without a configured name as "Room *n*". `false` offers only the named ones. |
 | `pollInterval` | `10` | Seconds between status reads (minimum 5). The robot is polled again right after every command. |

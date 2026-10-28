@@ -251,6 +251,21 @@ test('polling publishes only what changed', async (t) => {
   assert.deepEqual(api.updates[0].attributes, { batPercentRemaining: 162 });
 });
 
+test('a run mode the Matter store restored from disk is corrected', async (t) => {
+  const { api, platform } = await startPlatform();
+  t.after(() => platform.shutdown());
+
+  // matter.js restores the persisted run mode over the one given at
+  // registration, so the store can say Cleaning while the robot is docked.
+  const store = JSON.parse(JSON.stringify(api.registered[0].clusters));
+  store.rvcRunMode.currentMode = ms.RUN_MODE.CLEANING;
+  api.matter.getAccessoryState = async (uuid, cluster) => store[cluster];
+
+  await platform.poll();
+  assert.deepEqual(api.updates.map((update) => [update.cluster, update.attributes]),
+    [['rvcRunMode', { currentMode: ms.RUN_MODE.IDLE }]]);
+});
+
 test('the optimistic state gives way to the robot once it moves on', async (t) => {
   const { api, vacuum, platform } = await startPlatform();
   t.after(() => platform.shutdown());
